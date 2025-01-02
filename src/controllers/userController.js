@@ -1,10 +1,40 @@
 import User from "../models/UserModel";
 import AppError from "../utils/appError";
 import catchAsync from "../utils/catchAsync";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+//Create a token
+const signToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+// Send a token to the user
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user.id);
+  user.password = undefined;
+
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+};
 
 export const createUser = catchAsync(async (req, res, next) => {
   const { name, email, password, status, role } = req.body;
-  const newUser = await User.create({ name, email, password, status, role });
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const newUser = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    status,
+    role,
+  });
   newUser.password = undefined;
   res.status(201).json({
     status: "success",
@@ -12,6 +42,20 @@ export const createUser = catchAsync(async (req, res, next) => {
       user: newUser,
     },
   });
+});
+
+export const loginUser = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new AppError("Please provide email and password!", 400));
+  }
+
+  const user = await User.findOne({ where: { email, status: "active" } });
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return next(new AppError("Invalid email or password", 400));
+  }
+  createSendToken(user, 200, res);
 });
 
 export const getUsers = catchAsync(async (req, res, next) => {
@@ -48,7 +92,14 @@ export const updateUser = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError("User not found", 404));
   }
-  await user.update({ name, email, password, status, role });
+
+  if (password) {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    await user.update({ name, email, password: hashedPassword, status, role });
+  } else {
+    await user.update({ name, email, status, role });
+  }
+
   user.password = undefined;
   res.status(200).json({
     status: "success",
