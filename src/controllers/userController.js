@@ -16,7 +16,7 @@ export const createUser = catchAsync(async (req, res, next) => {
 
 export const getUsers = catchAsync(async (req, res, next) => {
   const users = await User.findAll();
-  if (!users) {
+  if (!users || users.length === 0) {
     return next(new AppError("No users found", 404));
   }
   res.status(200).json({
@@ -32,6 +32,7 @@ export const getUserById = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError("User not found", 404));
   }
+  user.password = undefined;
   res.status(200).json({
     status: "success",
     data: {
@@ -50,7 +51,7 @@ export const updateUser = catchAsync(async (req, res, next) => {
   await user.update({ name, email, password, status, role });
   user.password = undefined;
   res.status(200).json({
-    status: "Success",
+    status: "success",
     data: {
       user,
     },
@@ -64,7 +65,7 @@ export const deleteUser = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found", 404));
   }
   await user.update({ status: "disable" });
-  res.status(204).json({
+  res.status(200).json({
     status: "success",
   });
 });
