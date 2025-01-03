@@ -13,7 +13,7 @@ Este proyecto es una aplicación Node.js para gestionar las finansas en una finc
 1. Clona el repositorio:
 
    ```sh
-   git clone https://github.com/tu-usuario/finca.git
+   git clone https://github.com/yeinerpb/finca.git
    cd finca
    ```
 
@@ -56,3 +56,68 @@ Este proyecto utiliza Prettier para formatear el código. La configuración de P
   "printWidth": 90
 }
 ```
+
+5. Configura la base de datos en `database.js`:
+
+   ```javascript
+   import { Sequelize } from "sequelize";
+
+   const db = new Sequelize(
+     process.env.DB,
+     process.env.DB_USER,
+     process.env.DB_PASSWORD,
+     {
+       host: process.env.DB_HOST,
+       dialect: "postgres", // Cambia esto según tu base de datos (mysql, sqlite, etc.)
+     }
+   );
+
+   export default db;
+   ```
+
+6. Ejecuta las migraciones (si estás usando Sequelize CLI):
+
+   ```sh
+   npx sequelize-cli db:migrate
+   ```
+
+## Configuración de Prettier
+
+Este proyecto utiliza Prettier para formatear el código. La configuración de Prettier se encuentra en el archivo `.prettierrc`.
+
+### `.prettierrc`
+
+````json
+{
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 90
+}
+
+## Configuración del Proyecto
+
+### Variables de Entorno
+
+Asegúrate de configurar las variables de entorno necesarias en un archivo `.env` en la raíz del proyecto. Aquí tienes un ejemplo de las variables de entorno necesarias:
+
+```plaintext
+NODE_ENV=development
+PORT=numberPort
+
+DB=db_name
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASSWORD=password
+
+JWT_SECRET=tokenSecret
+JWT_EXPIRES_IN=78h
+
+### Ejecución del Servidor
+
+Para iniciar el servidor, ejecuta el siguiente comando:
+
+```sh
+npm run dev
+````
