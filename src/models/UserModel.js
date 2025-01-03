@@ -1,40 +1,65 @@
-import { DataTypes } from "sequelize";
-import db from "../database/database";
+import { Model, DataTypes } from "sequelize";
+import db from "../database/database.js";
 import { now } from "sequelize/lib/utils";
 
-const User = db.define("User", {
-  id: {
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false,
-    type: DataTypes.INTEGER,
+class User extends Model {
+  changedPasswordAfter(JWTTimestamp) {
+    if (this.passwordChangedAt) {
+      const changedTimestamp = parseInt(
+        this.passwordChangedAt.getTime() / 1000,
+        10
+      );
+      return JWTTimestamp < changedTimestamp;
+    }
+    return false;
+  }
+}
+
+User.init(
+  {
+    id: {
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      type: DataTypes.INTEGER,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    passwordChangedAt: {
+      type: DataTypes.DATE,
+    },
+    status: {
+      type: DataTypes.STRING,
+      values: ["active", "disable"],
+      defaultValue: "active",
+    },
+    role: {
+      type: DataTypes.ENUM,
+      values: ["admin", "user"],
+      defaultValue: "user",
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: now(),
+    },
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  status: {
-    type: DataTypes.STRING,
-    defaultValue: "active",
-  },
-  role: {
-    type: DataTypes.ENUM,
-    defaultValue: "admin" || "user",
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: now(),
-  },
-});
+  {
+    sequelize: db,
+    modelName: "User",
+    timestamps: false,
+  }
+);
 
 export default User;

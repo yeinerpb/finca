@@ -8,19 +8,19 @@ import {
   getUserById,
   updateUser,
   deleteUser,
-} from "../controllers/userController";
+} from "../controllers/userController.js";
 
 const router = express.Router();
 
 //public routes
-router.post("/users", validateUser, createUser);
+router.post("/", validateUser, createUser);
 router.post("/login", loginUser);
 
 //private routes
 router.use(protect);
-router.get("/users", getUsers);
-router.get("/users/:id", getUserById);
-router.put("/users/:id", updateUser);
-router.delete("/users/:id", deleteUser);
+router.get("/", getUsers);
+router.get("/:id", getUserById);
+router.put("/:id", updateUser);
+router.delete("/:id", deleteUser);
 
 export default router;
