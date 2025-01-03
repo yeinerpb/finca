@@ -1,6 +1,6 @@
-import User from "../models/UserModel";
-import AppError from "../utils/appError";
-import catchAsync from "../utils/catchAsync";
+import User from "../models/UserModel.js";
+import AppError from "../utils/appError.js";
+import catchAsync from "../utils/catchAsync.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -35,13 +35,7 @@ export const createUser = catchAsync(async (req, res, next) => {
     status,
     role,
   });
-  newUser.password = undefined;
-  res.status(201).json({
-    status: "success",
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 export const loginUser = catchAsync(async (req, res, next) => {
@@ -93,12 +87,17 @@ export const updateUser = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found", 404));
   }
 
+  let updateData = { name, email, status, role };
+
   if (password) {
     const hashedPassword = await bcrypt.hash(password, 12);
-    await user.update({ name, email, password: hashedPassword, status, role });
+    updateData.password = hashedPassword;
+    updateData.passwordChangedAt = new Date();
   } else {
     await user.update({ name, email, status, role });
   }
+
+  await user.update(updateData);
 
   user.password = undefined;
   res.status(200).json({
