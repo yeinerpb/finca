@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 db.sync()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`Server is running on http://localhost:${PORT} - listening`);
     });
   })
   .catch((err) => {

@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  finca:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB: db_finca
+      DB_HOST: db_finca
+      DB_USER: postgres
+      DB_PASSWORD: 1005
+      JWT_SECRET: a16848867ad7daafc47aef8efb4ef7acba6fbb229605d320bf149fa41d5fd156b151b581e573f873148884de6a0e08717834deb639e6f1dd5460650aeec30d3b
+      JWT_EXPIRES_IN: 78h
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - db_finca
+  db_finca:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: db_finca
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1005
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
