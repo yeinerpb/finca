@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Create a connection to database
-const db = new Sequelize({
+const sequelize = new Sequelize({
   dialect: "postgres",
   host: process.env.DB_HOST,
   username: process.env.DB_USER,
@@ -13,12 +13,13 @@ const db = new Sequelize({
   logging: false,
 });
 
-db.authenticate()
-  .then(() => {
-    console.log("Connection has been established successfully.");
-  })
-  .catch((err) => {
-    console.error("Unable to connect to the database:", err);
-  });
+export const syncDatabase = async () => {
+  try {
+    await sequelize.sync({ alter: true });
+    console.log("Database synchronized");
+  } catch (error) {
+    console.error("Error synchronizing database:", error);
+  }
+};
 
-export default db;
+export default sequelize;

@@ -45,15 +45,24 @@ export const loginUser = catchAsync(async (req, res, next) => {
     return next(new AppError("Please provide email and password!", 400));
   }
 
-  const user = await User.findOne({ where: { email, status: "active" } });
+  const user = await User.findOne({
+    where: {
+      email: email.toLowerCase(),
+      status: "active",
+    },
+  });
+
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new AppError("Invalid email or password", 400));
   }
+
   createSendToken(user, 200, res);
 });
 
 export const getUsers = catchAsync(async (req, res, next) => {
-  const users = await User.findAll();
+  const users = await User.findAll({
+    attributes: { exclude: ["password"] },
+  });
   if (!users || users.length === 0) {
     return next(new AppError("No users found", 404));
   }
