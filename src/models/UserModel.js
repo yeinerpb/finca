@@ -49,10 +49,10 @@ User.init(
       values: ["admin", "user"],
       defaultValue: "user",
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: now(),
+      defaultValue: DataTypes.NOW,
     },
   },
   {
