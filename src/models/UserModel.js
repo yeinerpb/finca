@@ -1,6 +1,5 @@
 import { Model, DataTypes } from "sequelize";
 import db from "../database/database.js";
-import { now } from "sequelize/lib/utils";
 
 class User extends Model {
   changedPasswordAfter(JWTTimestamp) {
